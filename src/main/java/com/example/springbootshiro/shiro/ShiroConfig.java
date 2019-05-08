@@ -4,10 +4,12 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,13 +35,27 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/static/**", "anon");
         filterChainDefinitionMap.put("/user/login", "anon");
         filterChainDefinitionMap.put("/user/logout", "logout");
-        filterChainDefinitionMap.put("/**", "user");
-
+        //根据用户的角色赋予相应的权限
+        filterChainDefinitionMap.put("/add", "roles[admin]");
+        filterChainDefinitionMap.put("/delete", "roles[admin]");
+        filterChainDefinitionMap.put("/delete", "roles[author]");
+        filterChainDefinitionMap.put("/add", "perms[user:add]");
+        filterChainDefinitionMap.put("/delete", "perms[user:delete]");
+        filterChainDefinitionMap.put("/userList", "perms[user:list]");
+        //   /** 匹配所有的路径
+        //  通过Map集合组成了一个拦截器链 ，自顶向下过滤，一旦匹配，则不再执行下面的过滤
+        //  如果下面的定义与上面冲突，那按照了谁先定义谁说了算
+        //  /** 一定要配置在最后
+        filterChainDefinitionMap.put("/**", "authc");
+        // 将拦截器链设置到shiro中
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        // 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
         shiroFilterFactoryBean.setLoginUrl("/login");
+        // 登录成功后要跳转的链接
         shiroFilterFactoryBean.setSuccessUrl("/index");
+        //未授权页面
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
 
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
 
@@ -107,4 +123,24 @@ public class ShiroConfig {
         return cookieRememberMeManager;
     }
 
+    /**
+     * 开启shiro aop注解支持
+     * 使用代理方式;所以需要开启代码支持
+     * @param securityManager
+     */
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager){
+        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
+        return authorizationAttributeSourceAdvisor;
+    }
+    /**
+     * 开启cglib代理
+     */
+    @Bean
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
+        creator.setProxyTargetClass(true);
+        return creator;
+    }
 }

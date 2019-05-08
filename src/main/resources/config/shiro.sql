@@ -11,7 +11,7 @@
  Target Server Version : 80015
  File Encoding         : 65001
 
- Date: 07/05/2019 18:36:13
+ Date: 08/05/2019 16:58:42
 */
 
 SET NAMES utf8mb4;
@@ -31,9 +31,9 @@ CREATE TABLE `permission`  (
 -- ----------------------------
 -- Records of permission
 -- ----------------------------
-INSERT INTO `permission` VALUES (1, '用户管理', '/list');
-INSERT INTO `permission` VALUES (2, '用户添加/更新', '/add');
-INSERT INTO `permission` VALUES (3, '用户删除', '/delete');
+INSERT INTO `permission` VALUES (1, '用户管理', 'user:list');
+INSERT INTO `permission` VALUES (2, '用户添加/更新', 'user:add');
+INSERT INTO `permission` VALUES (3, '用户删除', 'user:delete');
 INSERT INTO `permission` VALUES (4, '用户编辑页面', 'user:edit');
 INSERT INTO `permission` VALUES (5, '文章管理', 'post:list');
 INSERT INTO `permission` VALUES (6, '文章查询', 'post:search');
@@ -82,6 +82,7 @@ INSERT INTO `role_permission_ref` VALUES (6, 1, 6);
 INSERT INTO `role_permission_ref` VALUES (7, 1, 7);
 INSERT INTO `role_permission_ref` VALUES (8, 1, 8);
 INSERT INTO `role_permission_ref` VALUES (9, 1, 9);
+INSERT INTO `role_permission_ref` VALUES (10, 2, 1);
 
 -- ----------------------------
 -- Table structure for user
