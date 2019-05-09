@@ -2,6 +2,8 @@ package com.example.springbootshiro.shiro;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.cache.CacheManager;
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -65,8 +67,12 @@ public class ShiroConfig {
      */
 
     @Bean(name = "securityManager")
-    public SecurityManager securityManager(@Qualifier("myShiroRealm") MyShiroRealm myShiroRealm,@Qualifier("rememberMeManager")CookieRememberMeManager rememberMeManager){
+    public SecurityManager securityManager(
+            @Qualifier("myShiroRealm") MyShiroRealm myShiroRealm,
+            @Qualifier("rememberMeManager") CookieRememberMeManager rememberMeManager,
+            @Qualifier("cacheManager") CacheManager cacheManager){
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        securityManager.setCacheManager(cacheManager);
         securityManager.setRememberMeManager(rememberMeManager);
         securityManager.setRealm(myShiroRealm);
         return securityManager;
@@ -142,5 +148,14 @@ public class ShiroConfig {
         DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
         creator.setProxyTargetClass(true);
         return creator;
+    }
+
+    //  缓存配置
+    //shiro自带的MemoryConstrainedCacheManager作缓存
+    // 但是只能用于本机，在集群时就无法使用
+    @Bean(name = "cacheManager")
+    public CacheManager cacheManager() {
+        MemoryConstrainedCacheManager cacheManager=new MemoryConstrainedCacheManager();//使用内存缓存
+        return cacheManager;
     }
 }
