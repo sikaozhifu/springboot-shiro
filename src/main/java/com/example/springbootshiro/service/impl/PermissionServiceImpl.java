@@ -35,4 +35,9 @@ public class PermissionServiceImpl implements PermissionService {
         }
         return permissionList;
     }
+
+    @Override
+    public int insertRolePermissionRef(RolePermissionRef rolePermissionRef) {
+        return rolePermissionRefMapper.insert(rolePermissionRef);
+    }
 }

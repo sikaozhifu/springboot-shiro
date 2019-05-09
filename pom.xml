@@ -66,6 +66,12 @@
             <version>4.5.7</version>
         </dependency>
 
+        <!--添加ehcache-->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-ehcache</artifactId>
+            <version>1.4.0</version>
+        </dependency>
     </dependencies>
 
     <build>
